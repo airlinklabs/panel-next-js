@@ -7,6 +7,7 @@ export default function Login() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -16,7 +17,26 @@ export default function Login() {
       return;
     }
 
-    // here we need to make the login logik
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 200) {
+        router.push("/");
+      } else {
+        setError(data.error || "An error occurred");
+      }
+    } catch (error) {
+      console.error("Error logging in:", error);
+      setError("An error occurred. Please try again.");
+    }
   };
 
   return (
@@ -26,7 +46,7 @@ export default function Login() {
           <div>
             <Image
               className="h-12 w-auto rounded-xl"
-              src="/image.png"
+              src="/logo.png"
               alt="Next.js Logo"
               width={48}
               height={48}
