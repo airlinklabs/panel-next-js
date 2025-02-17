@@ -3,16 +3,23 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { LoaderCircle } from "lucide-react";
+import { Button } from "@/components/shadcn/button";
 export default function Login() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, submitLoginLoader] = useState<boolean>(false);
 
+  const handleClick = () => {
+    submitLoginLoader(true);
+  };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!username || !password) {
+      submitLoginLoader(false);
       alert("Missing credentials. Please try again.");
       return;
     }
@@ -29,22 +36,25 @@ export default function Login() {
       const data = await res.json();
 
       if (res.status === 401) {
+        submitLoginLoader(false);
         alert("Invalid Username or Password.")
       }
 
       if (res.status === 200) {
         router.push("/");
       } else {
+        submitLoginLoader(false);
         setError(data.error || "An error occurred");
       }
     } catch (error) {
+      submitLoginLoader(false);
       console.error("Error logging in:", error);
       setError("An error occurred. Please try again.");
     }
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex dark bg-background">
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 border-r border-neutral-950/20">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div>
@@ -131,12 +141,20 @@ export default function Login() {
               </div>
 
               <div>
-                <button
+                <Button
                   type="submit"
-                  className="w-full flex justify-center py-2 px-4 border border-neutral-800/20 rounded-xl shadow-sm text-sm font-medium text-neutral-200 dark:text-neutral-800 bg-neutral-950 dark:bg-white hover:bg-neutral-900 dark:hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
+                  onClick={handleClick}
+                  disabled={isLoading}
+                  data-loading={isLoading}
+                  className="group relative disabled:opacity-100 w-full flex justify-center py-2 px-4 border border-neutral-800/20 rounded-xl shadow-sm text-sm font-medium text-neutral-200 dark:text-neutral-800 bg-neutral-950 dark:bg-white hover:bg-neutral-900 dark:hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
                 >
-                  Sign in
-                </button>
+                  <span className="group-data-[loading=true]:text-transparent">Sign in</span>
+                  {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <LoaderCircle className="animate-spin" size={16} strokeWidth={2} aria-hidden="true" />
+                    </div>
+                  )}
+                </Button>
               </div>
 
               <div className="mt-6 text-sm text-neutral-500">
