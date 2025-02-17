@@ -61,7 +61,7 @@ export default function Login() {
             <Image
               className="h-12 w-auto rounded-xl"
               src="/logo.png"
-              alt="Next.js Logo"
+              alt="Airlink Logo"
               width={48}
               height={48}
             />
