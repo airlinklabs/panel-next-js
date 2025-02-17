@@ -28,6 +28,10 @@ export default function Login() {
 
       const data = await res.json();
 
+      if (res.status === 401) {
+        alert("Invalid Username or Password.")
+      }
+
       if (res.status === 200) {
         router.push("/");
       } else {
