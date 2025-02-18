@@ -86,7 +86,7 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
         {/* Logout */}
         <div className="mt-auto p-2 border-t">
-          <Button variant="destructive" className="w-full justify-start text-foreground">
+          <Button variant="destructiveSecondary" className="w-full justify-start text-foreground">
             <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
