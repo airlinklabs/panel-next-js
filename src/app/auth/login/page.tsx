@@ -100,10 +100,10 @@ export default function Login() {
                     <div className="flex justify-between">
                       <div className="flex items-center space-x-2">
                         <Checkbox id="remember" className="border-muted-foreground" />
-                        <Label htmlFor="remember">Remember me</Label>
+                        <Label htmlFor="remember" className="text-neutral-400">Remember me</Label>
                       </div>
-                      <Link href="#" className="text-sm font-medium text-primary">
-                        Forgot password
+                      <Link href="#" className="text-sm font-medium text-neutral-400 hover:text-neutral-300 transition duration-300">
+                        Forgot password?
                       </Link>
                     </div>
                     <Button
