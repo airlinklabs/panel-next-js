@@ -62,7 +62,7 @@ export default function Login() {
       <div className="">
         <div className="grid lg:grid-cols-2">
           <div className="relative overflow-hidden py-10">
-            <div className="mx-auto my-auto flex h-full w-full max-w-md flex-col  gap-4 p-6">
+            <div className="mx-auto my-auto flex h-full w-full max-w-md flex-col border border-dashed rounded-xl gap-4 p-6">
               <div className="mb-6 flex flex-col items-center text-center">
                 <Image src="/logo.png" alt="logo" width={40} height={40} className="mb-7 h-10 w-auto" />
                 <p className="mb-2 text-2xl font-bold">Welcome to AirLink</p>
