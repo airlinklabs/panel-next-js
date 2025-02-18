@@ -16,8 +16,9 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isLoading, submitLoginLoader] = useState<boolean>(false);
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     submitLoginLoader(true);
+    setTimeout(() => handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>), 500);
   };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,7 +46,7 @@ export default function Login() {
       }
 
       if (res.status === 200) {
-        router.push("/");
+        router.push("/dashboard");
       } else {
         submitLoginLoader(false);
         setError(data.error || "An error occurred");

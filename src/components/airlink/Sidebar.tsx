@@ -31,7 +31,7 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
         <div className="p-4 border-b">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src="/placeholder.svg" />
+              <AvatarImage src="https://api.dicebear.com/9.x/thumbs/svg?seed=4eplz" />
               <AvatarFallback>4E</AvatarFallback>
             </Avatar>
             <div>
