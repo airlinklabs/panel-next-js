@@ -16,8 +16,9 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isLoading, submitLoginLoader] = useState<boolean>(false);
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     submitLoginLoader(true);
+    setTimeout(() => handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>), 500);
   };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,7 +46,7 @@ export default function Login() {
       }
 
       if (res.status === 200) {
-        router.push("/");
+        router.push("/dashboard");
       } else {
         submitLoginLoader(false);
         setError(data.error || "An error occurred");
@@ -100,10 +101,10 @@ export default function Login() {
                     <div className="flex justify-between">
                       <div className="flex items-center space-x-2">
                         <Checkbox id="remember" className="border-muted-foreground" />
-                        <Label htmlFor="remember">Remember me</Label>
+                        <Label htmlFor="remember" className="text-neutral-400">Remember me</Label>
                       </div>
-                      <Link href="#" className="text-sm font-medium text-primary">
-                        Forgot password
+                      <Link href="#" className="text-sm font-medium text-neutral-400 hover:text-neutral-300 transition duration-300">
+                        Forgot password?
                       </Link>
                     </div>
                     <Button

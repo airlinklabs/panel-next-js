@@ -31,7 +31,7 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
         <div className="p-4 border-b">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src="/placeholder.svg" />
+              <AvatarImage src="https://api.dicebear.com/9.x/thumbs/svg?seed=4eplz" />
               <AvatarFallback>4E</AvatarFallback>
             </Avatar>
             <div>
@@ -86,7 +86,7 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
         {/* Logout */}
         <div className="mt-auto p-2 border-t">
-          <Button variant="destructive" className="w-full justify-start text-foreground">
+          <Button variant="destructiveSecondary" className="w-full justify-start text-foreground">
             <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
