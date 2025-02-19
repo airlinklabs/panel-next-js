@@ -1,14 +1,24 @@
-// components/ServerCard.tsx
-
 import { Edit, Trash2, TerminalIcon } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/shadcn/card";
 import { Button } from "@/components/shadcn/button";
 import { Progress } from "@/components/shadcn/progress";
-import { Server, getStatusStyles } from "@/lib/utils";
+import { Server } from "@/lib/utils";
 
 interface ServerCardProps {
   server: Server;
 }
+const getStatusStyles = (status: 'Online' | 'Starting' | 'Stopped') => {
+    switch (status) {
+      case 'Online':
+        return 'bg-green-500/10 text-green-500';
+      case 'Starting':
+        return 'bg-yellow-500/10 text-yellow-500';
+      case 'Stopped':
+        return 'bg-red-500/10 text-red-500';
+      default:
+        return '';
+    }
+  };
 
 const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
   return (
@@ -49,7 +59,9 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
           </div>
           <Progress value={(parseInt(server.diskUsage.split('/')[0]) / parseInt(server.diskUsage.split('/')[1])) * 100} className="h-1 bg-zinc-800" />
         </div>
-        <div className={`space-y-2 rounded py-1.5 text-center text-xs font-medium ${getStatusStyles(server.status)}`}>{server.status.toUpperCase()}</div>
+        <div className={`rounded py-1.5 text-center text-xs font-medium ${getStatusStyles(server.status)}`}>
+          {server.status.toUpperCase()}
+        </div>
         <Button variant="outline" className="aspect-square max-sm:p-0 w-full">
           <TerminalIcon className="opacity-60 sm:-ms-1 sm:me-2" size={16} strokeWidth={2} aria-hidden="true" />
           <span className="max-sm:sr-only">Manage Server</span>
