@@ -16,8 +16,16 @@ export async function POST(request: Request) {
 
   try {
     const user = await prisma.users.findFirst({
-        where: { OR: [{ email: username }, { username }] },
-      });
+      where: { OR: [{ email: username }, { username }] },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        password: true,
+        isAdmin: true,
+        description: true
+      }
+    });
 
     if (!user) {
       return NextResponse.json(
@@ -35,7 +43,12 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ message: 'Login successful' });
+    const { password: _, ...userWithoutPassword } = user;
+
+    return NextResponse.json({ 
+      message: 'Login successful',
+      user: userWithoutPassword
+    });
 
   } catch (error) {
     return NextResponse.json(

@@ -9,6 +9,8 @@ import { Label } from "@/components/shadcn/label";
 import { Checkbox } from "@/components/shadcn/checkbox";
 import { Input } from "@/components/shadcn/input";
 import { Button } from "@/components/shadcn/button";
+import { useAuth } from "@/lib/auth";
+
 export default function Login() {
   const router = useRouter();
   const [username, setUsername] = useState("");
@@ -46,6 +48,7 @@ export default function Login() {
       }
 
       if (res.status === 200) {
+        useAuth.getState().setUser(data.user);
         router.push("/dashboard");
       } else {
         submitLoginLoader(false);

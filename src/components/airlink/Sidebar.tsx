@@ -6,6 +6,7 @@ import { Button } from "@/components/shadcn/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useAuth } from "@/lib/auth";
 
 interface SidebarProps {
   isSidebarOpen: boolean;
@@ -14,6 +15,7 @@ interface SidebarProps {
 
 const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const user = useAuth((state: any) => state.user);
 
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
@@ -31,12 +33,12 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
         <div className="p-4 border-b">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src="https://api.dicebear.com/9.x/thumbs/svg?seed=4eplz" />
-              <AvatarFallback>4E</AvatarFallback>
+              <AvatarImage src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user?.username || 'guest'}`} />
+              <AvatarFallback>{user?.username?.[0]?.toUpperCase() || 'G'}</AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-medium">4eplz</div>
-              <div className="text-sm text-muted-foreground">No About Me</div>
+              <div className="font-medium">{user?.username || 'Unknown'}</div>
+              <div className="text-sm text-muted-foreground">{user?.description || 'No description'}</div>
             </div>
           </div>
         </div>
