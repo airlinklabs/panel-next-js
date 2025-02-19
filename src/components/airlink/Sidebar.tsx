@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar"
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useAuth } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   isSidebarOpen: boolean;
@@ -16,6 +17,25 @@ interface SidebarProps {
 const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const user = useAuth((state: any) => state.user);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (res.ok) {
+        useAuth.getState().setUser(null);
+        router.push("/auth/login");
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
 
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
@@ -88,7 +108,11 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
         {/* Logout */}
         <div className="mt-auto p-2 border-t">
-          <Button variant="destructiveSecondary" className="w-full justify-start text-foreground">
+          <Button 
+            variant="destructiveSecondary" 
+            className="w-full justify-start text-foreground"
+            onClick={handleLogout}
+          >
             <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
