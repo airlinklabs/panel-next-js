@@ -22,7 +22,7 @@ const getStatusStyles = (status: 'Online' | 'Starting' | 'Stopped') => {
 
 const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
   return (
-    <Card key={server.uuid} className="w-full max-w-md text-white border-zinc-800">
+    <Card key={server.uuid} className="w-full text-white border-zinc-800 ">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{server.name}</span>
@@ -59,7 +59,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
           </div>
           <Progress value={(parseInt(server.diskUsage.split('/')[0]) / parseInt(server.diskUsage.split('/')[1])) * 100} className="h-1 bg-zinc-800" />
         </div>
-        <div className={`rounded py-1.5 text-center text-xs font-medium ${getStatusStyles(server.status)}`}>
+        <div className={`rounded py-1.5 text-center text-xs font-medium   ${getStatusStyles(server.status)}`}>
           {server.status.toUpperCase()}
         </div>
         <Button variant="outline" className="aspect-square max-sm:p-0 w-full">
