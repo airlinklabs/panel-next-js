@@ -121,7 +121,8 @@ export default function Login() {
                         </div>
                       )}
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    {process.env.NEXT_PUBLIC_ENABLE_GOOGLE === "true" && (
+                       <Button variant="outline" className="w-full">
                       <svg
                         stroke="currentColor"
                         fill="currentColor"
@@ -160,15 +161,18 @@ export default function Login() {
                       </svg>
                       Sign up with Google
                     </Button>
+                    )}
                   </div>
                 </div>
               </div>
-              <div className="mx-auto mt-3 flex justify-center gap-1 text-sm text-muted-foreground">
-                <p>Don&apos;t have an account?</p>
-                <Link href="#" className="font-medium text-primary">
+                {process.env.NEXT_PUBLIC_ENABLE_SIGNUP === "true" && (
+                <div className="mx-auto mt-3 flex justify-center gap-1 text-sm text-muted-foreground">
+                  <p>Don&apos;t have an account?</p>
+                  <Link href="#" className="font-medium text-primary">
                   Sign up
-                </Link>
-              </div>
+                  </Link>
+                </div>
+                )}
             </div>
           </div>
           <Image
