@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/shadcn/button";
-import { cn, getStatusStyles, Server } from "@/lib/utils";
+import { cn, Server } from "@/lib/utils";
 import Header from "@/components/airlink/Header";
 import Sidebar from "@/components/airlink/Sidebar";
 import LoadingScreen from "@/components/airlink/LoadingScreen";
