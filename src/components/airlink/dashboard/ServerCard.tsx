@@ -4,7 +4,6 @@ import { Button } from "@/components/shadcn/button";
 import { Progress } from "@/components/shadcn/progress";
 import { Server } from "@/lib/utils";
 import { Badge } from "@/components/shadcn/badge";
-
 interface ServerCardProps {
   server: Server;
 }
@@ -12,11 +11,11 @@ interface ServerCardProps {
 const getStatusStyles = (status: "Online" | "Starting" | "Stopped") => {
   switch (status) {
     case "Online":
-      return "bg-green-500/10 text-green-500";
+      return "bg-green-500/10 text-green-500 hover:bg-green-500/15";
     case "Starting":
-      return "bg-yellow-500/10 text-yellow-500";
+      return "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/15";
     case "Stopped":
-      return "bg-red-500/10 text-red-500";
+      return "bg-red-500/10 text-red-500 hover:bg-red-500/15";
     default:
       return "";
   }
@@ -41,10 +40,11 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
           <span className="text-sm text-zinc-400">ID: {server.uuid}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Badge className={`${getStatusStyles(server.status)}`}>{server.status.toUpperCase()}</Badge>
+          <Badge className={`${getStatusStyles(server.status)} transition-colors delay-200 cursor-pointer`}>{server.status.toUpperCase()}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent>
+      <div className="space-y-2">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-zinc-400">Memory</span>
@@ -66,6 +66,11 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
           </div>
           <Progress value={diskUsage} className={`${getProgressColor(diskUsage)}`} />
         </div>
+       </div>
+        <Button variant="outline" className="aspect-square max-sm:p-0 w-full mt-4">
+          <TerminalIcon className="opacity-60 sm:-ms-1 sm:me-2" size={16} strokeWidth={2} aria-hidden="true" />
+          <span>Manage Server</span>
+        </Button>
       </CardContent>
     </Card>
   );
