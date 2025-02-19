@@ -50,7 +50,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="h-screen dark bg-background text-foreground">
+    <div className="min-h-screen dark bg-background text-foreground">
       <LoadingScreen loading={loading} />
       <AnimatePresence>
         {!loading && (
