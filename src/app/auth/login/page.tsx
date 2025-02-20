@@ -168,7 +168,7 @@ export default function Login() {
               </div>
               <div className="mx-auto mt-3 flex justify-center gap-1 text-sm text-muted-foreground">
                 <p>Don&apos;t have an account?</p>
-                <Link href="#" className="font-medium text-primary">
+                <Link href="/auth/signup" className="font-medium text-primary">
                   Sign up
                 </Link>
               </div>
