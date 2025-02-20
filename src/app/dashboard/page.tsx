@@ -69,7 +69,7 @@ const Dashboard: React.FC = () => {
                   <p className="text-muted-foreground">View and manage your servers.</p>
                 </div>
                 {servers.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+                  <div className="flex flex-col items-center justify-center min-h-96 text-center">
                     <div className="mb-4">
                       <div className="spinner">
                         <div></div>
