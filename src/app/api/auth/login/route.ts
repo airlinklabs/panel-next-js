@@ -43,7 +43,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const { password: _, ...userWithoutPassword } = user;
+    const userWithoutPassword = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      isAdmin: user.isAdmin,
+      description: user.description
+    };
 
     return NextResponse.json({ 
       message: 'Login successful',

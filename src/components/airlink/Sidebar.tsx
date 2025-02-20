@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar"
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useAuth } from "@/lib/auth";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface SidebarProps {
   isSidebarOpen: boolean;
@@ -18,6 +18,11 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const user = useAuth((state: any) => state.user);
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isActive = (path: string) => {
+    return pathname.startsWith(path);
+  };
 
   const handleLogout = async () => {
     try {
@@ -65,11 +70,19 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
         {/* Main Navigation */}
         <nav className="p-2 space-y-1">
-          <Button variant="secondary" className="w-full justify-start">
+          <Button 
+            variant={isActive('/dashboard') ? "secondary" : "ghost"} 
+            className="w-full justify-start"
+            onClick={() => router.push('/dashboard')}
+          >
             <Box className="mr-2 h-4 w-4" />
             Servers
           </Button>
-          <Button variant="ghost" className="w-full justify-start">
+          <Button 
+            variant={isActive('/account') ? "secondary" : "ghost"} 
+            className="w-full justify-start"
+            onClick={() => router.push('/account')}
+          >
             <User2 className="mr-2 h-4 w-4" />
             Account
           </Button>
