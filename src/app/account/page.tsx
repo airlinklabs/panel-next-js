@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-
+import LoadingScreen from "@/components/airlink/LoadingScreen";
 import { LoaderCircle } from "lucide-react";
 import { Label } from "@/components/shadcn/label";
 import { Input } from "@/components/shadcn/input";
@@ -139,6 +139,7 @@ export default function Account() {
 
   return (
     <div className="min-h-screen dark bg-background text-foreground">
+      <LoadingScreen loading={loading} />
       <AnimatePresence>
         {!loading && (
           <motion.div
