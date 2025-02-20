@@ -3,7 +3,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link"
-
+import { useEffect } from "react";
+import { isAuthenticated } from "@/lib/utils/authenticated";
 import { LoaderCircle } from "lucide-react";
 import { Label } from "@/components/shadcn/label";
 import { Checkbox } from "@/components/shadcn/checkbox";
@@ -60,6 +61,13 @@ export default function Login() {
       setError("An error occurred. Please try again.");
     }
   };
+
+    useEffect(() => {
+      if (isAuthenticated()) {
+        router.push("/dashboard");
+      }
+    }, []);
+
 
   return (
     <section className="flex items-center justify-center dark bg-background text-white overflow-y-hidden h-screen">

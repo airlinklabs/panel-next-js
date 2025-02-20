@@ -8,8 +8,11 @@ import Header from "@/components/airlink/Header";
 import Sidebar from "@/components/airlink/Sidebar";
 import LoadingScreen from "@/components/airlink/LoadingScreen";
 import ServerCard from "@/components/airlink/dashboard/ServerCard";
+import { useRouter } from "next/navigation";
+import { isAuthenticated } from "@/lib/utils/authenticated";
 
 const Dashboard: React.FC = () => {
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(true);
   const [servers, setServers] = useState<Server[]>([
@@ -48,6 +51,12 @@ const Dashboard: React.FC = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+    useEffect(() => {
+      if (!isAuthenticated()) {
+        router.push("/auth/login");
+      }
+    }, []);
 
   return (
     <div className="min-h-screen dark bg-background text-foreground">

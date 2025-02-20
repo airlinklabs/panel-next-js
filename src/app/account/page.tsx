@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import Header from "@/components/airlink/Header";
 import Sidebar from "@/components/airlink/Sidebar";
+import { isAuthenticated } from "@/lib/utils/authenticated";
 
 export default function Account() {
   const router = useRouter();
@@ -50,6 +51,12 @@ export default function Account() {
       setLoading(false);
     }, 1000);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.push("/auth/login");
+    }
   }, []);
 
   const validateCurrentPassword = async (password: string) => {
