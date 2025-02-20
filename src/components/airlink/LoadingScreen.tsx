@@ -15,7 +15,7 @@ const LoadingScreen: FC<LoadingScreenProps> = ({ loading }) => {
     if (!loading) {
       const timer = setTimeout(() => {
         setIsVisible(false);
-      }, 2000);
+      }, 500);
 
       return () => clearTimeout(timer);
     }
