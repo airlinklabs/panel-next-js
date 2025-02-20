@@ -1,7 +1,7 @@
 "use client";
 
 import { FC } from "react";
-import { Search, Menu, Box } from "lucide-react";
+import { Search, Menu, Command } from "lucide-react";
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 import Image from "next/image";
@@ -10,6 +10,8 @@ interface HeaderProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (isOpen: boolean) => void;
 }
+
+const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
 const Header: FC<HeaderProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   return (
@@ -24,12 +26,15 @@ const Header: FC<HeaderProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
         </Button>
       </div>
 
-      <div className="flex-1 justify-end max-w-xl ml-4 sm:ml-6 md:ml-8">
-        <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search" className="pl-8 w-full bg-muted" />
-          <kbd className="absolute right-2 top-2.5 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium opacity-100">
-            <span className="text-xs">CTRL</span>K
+      <div className="flex-1 flex justify-start ml-10">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            placeholder="Search..."
+            className="pl-10 pr-12 py-2 w-full rounded-xl border bg-muted text-sm focus:ring-2 focus:ring-primary"
+          />
+          <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none inline-flex h-6 items-center rounded-md bg-neutral-800 px-2 text-sm font-medium text-muted-foreground shadow border border-neutral-700">
+            {isMac ? <Command className="h-4 w-4 mr-2" /> : "Ctrl"} + K
           </kbd>
         </div>
       </div>

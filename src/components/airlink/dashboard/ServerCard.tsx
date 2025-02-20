@@ -89,7 +89,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
                 </div>
                 <Progress
                   value={memoryUsage}
-                  className="bg-zinc-950/50"
+                  className="bg-zinc-600/50"
                   indicatorClassName={getProgressColor(memoryUsage)}
                 />
               </div>
@@ -101,7 +101,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
                   </div>
                   <span className="font-mono text-xs">{server.cpuUsage}</span>
                 </div>
-                <Progress value={cpuUsage} className="bg-zinc-950/50" indicatorClassName={getProgressColor(cpuUsage)} />
+                <Progress value={cpuUsage} className="bg-zinc-600/50" indicatorClassName={getProgressColor(cpuUsage)} />
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm items-center">
@@ -113,7 +113,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
                 </div>
                 <Progress
                   value={diskUsage}
-                  className="bg-zinc-950/50"
+                  className="bg-zinc-600/50"
                   indicatorClassName={getProgressColor(diskUsage)}
                 />
               </div>
