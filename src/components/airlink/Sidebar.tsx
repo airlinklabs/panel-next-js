@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, FC } from "react";
-import { Box, User2, Settings, Users, Database, ImageIcon, LogOut, Server } from "lucide-react";
+import { Box, User2, Settings, Users, Database, ImageIcon, LogOut, Server, Computer, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/shadcn/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
 import { cn } from "@/lib/utils";
@@ -75,7 +75,7 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
             className="w-full justify-start"
             onClick={() => router.push('/dashboard')}
           >
-            <Box className="mr-2 h-4 w-4" />
+            <Server className="mr-2 h-4 w-4" />
             Servers
           </Button>
           <Button 
@@ -93,7 +93,7 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
           <div className="text-sm font-medium text-muted-foreground px-2 py-1.5">Admin Panel</div>
           <nav className="space-y-1">
             <Button variant="ghost" className="w-full justify-start text-foreground">
-              <Box className="mr-2 h-4 w-4" />
+            <LayoutGrid className="mr-2 h-4 w-4" />
               Overview
             </Button>
             <Button variant="ghost" className="w-full justify-start text-foreground">
@@ -109,11 +109,11 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
               Users
             </Button>
             <Button variant="ghost" className="w-full justify-start text-foreground">
-              <Database className="mr-2 h-4 w-4" />
+            <Computer className="mr-2 h-4 w-4" />
               Nodes
             </Button>
             <Button variant="ghost" className="w-full justify-start text-foreground">
-              <ImageIcon className="mr-2 h-4 w-4" />
+              <Box className="mr-2 h-4 w-4" />
               Images
             </Button>
           </nav>
