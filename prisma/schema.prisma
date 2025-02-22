@@ -1,54 +1,89 @@
-  generator client {
-    provider = "prisma-client-js"
-  }
+generator client {
+  provider = "prisma-client-js"
+}
 
-  datasource db {
-    provider = "sqlite"
-    url      = "file:./dev.db"
-  }
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
 
-  model Users {
-    id          Int      @id @default(autoincrement())
-    email       String   @unique
-    username    String?  @unique
-    password    String
-    isAdmin     Boolean  @default(false)
-    description String?  @default("No About Me")
-    servers     Server[]
-  }
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+}
 
-  model Session {
-    id         String   @id @default(cuid())
-    session_id String   @unique
-    data       String
-    expires    DateTime
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
-  }
+// NextAuth.js Models
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
 
-  model Server {
-    id        Int      @id @default(autoincrement())
-    UUID      String   @unique @default(uuid())
-    name      String
-    description String?
-    createdAt DateTime @default(now())
-    Ports     String
-    Memory    Int
-    Cpu       Int
-    Storage   Int
-    Variables String?
-    StartCommand String?
-    dockerImage String?
-    Installing Boolean @default(true)
-    Queued   Boolean  @default(true)
-    Suspended Boolean  @default(false)
-    ownerId   Int
-    nodeId    Int
-    imageId   Int
-    node      Node     @relation(fields: [nodeId], references: [id])
-    owner     Users    @relation(fields: [ownerId], references: [id])
-    image     Images   @relation(fields: [imageId], references: [id])
-  }
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+model Users {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  username    String?  @unique
+  password    String
+  isAdmin     Boolean  @default(false)
+  description String?  @default("No About Me")
+  servers     Server[]
+}
+
+model Server {
+  id        Int      @id @default(autoincrement())
+  UUID      String   @unique @default(uuid())
+  name      String
+  description String?
+  createdAt DateTime @default(now())
+  Ports     String
+  Memory    Int
+  Cpu       Int
+  Storage   Int
+  Variables String?
+  StartCommand String?
+  dockerImage String?
+  Installing Boolean @default(true)
+  Queued   Boolean  @default(true)
+  Suspended Boolean  @default(false)
+  ownerId   Int
+  nodeId    Int
+  imageId   Int
+  node      Node     @relation(fields: [nodeId], references: [id])
+  owner     Users    @relation(fields: [ownerId], references: [id])
+  image     Images   @relation(fields: [imageId], references: [id])
+}
 
 model Images {
   id          Int      @id @default(autoincrement())
@@ -68,18 +103,18 @@ model Images {
   servers     Server[]
 }
 
-  model Node {
-    id        Int      @id @default(autoincrement())
-    name      String
-    ram       Int      @default(0)
-    cpu       Int      @default(0)
-    disk      Int      @default(0)
-    address   String   @default("127.0.0.1")
-    port      Int      @default(3001)
-    key       String
-    createdAt DateTime @default(now())
-    servers   Server[]
-  }
+model Node {
+  id        Int      @id @default(autoincrement())
+  name      String
+  ram       Int      @default(0)
+  cpu       Int      @default(0)
+  disk      Int      @default(0)
+  address   String   @default("127.0.0.1")
+  port      Int      @default(3001)
+  key       String
+  createdAt DateTime @default(now())
+  servers   Server[]
+}
 
 model settings {
   id          Int      @id @default(autoincrement())

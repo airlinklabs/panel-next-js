@@ -1,8 +1,8 @@
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/store/auth-store";
 
 export function isAuthenticated(): boolean {
   const user = useAuth.getState().user;
-  return user !== null;
+  return !!user;
 }
 
 export function requireAuthentication(): boolean | never {

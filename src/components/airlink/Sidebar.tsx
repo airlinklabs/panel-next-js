@@ -6,7 +6,7 @@ import { Button } from "@/components/shadcn/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/store/auth-store";
 import { useRouter, usePathname } from "next/navigation";
 
 interface SidebarProps {
@@ -16,7 +16,7 @@ interface SidebarProps {
 
 const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const user = useAuth((state: any) => state.user);
+  const user = useAuth((state) => state.user);
   const router = useRouter();
   const pathname = usePathname();
 

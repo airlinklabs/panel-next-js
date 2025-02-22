@@ -9,7 +9,7 @@ import { Label } from "@/components/shadcn/label";
 import { Input } from "@/components/shadcn/input";
 import { Button } from "@/components/shadcn/button";
 import { Textarea } from "@/components/shadcn/textarea";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/store/auth-store";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import Header from "@/components/airlink/Header";

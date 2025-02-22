@@ -5,6 +5,7 @@ import { Search, Menu, Command } from "lucide-react";
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 
 interface HeaderProps {
   isSidebarOpen: boolean;
@@ -14,11 +15,19 @@ interface HeaderProps {
 const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
 const Header: FC<HeaderProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
+  const { resolvedTheme } = useTheme();
+  
   return (
     <header className="fixed top-0 left-0 right-0 h-14 border-b z-50 flex justify-between items-center gap-4 px-4 sm:px-6 md:px-8">
       <div className="flex flex-row gap-5">
         <div className="flex items-center justify-center gap-2 font-semibold">
-          <Image src="/logo.png" alt="Logo" width={40} height={40} />
+          <Image 
+            src={resolvedTheme === 'dark' ? "/logo-dark.png" : "/logo-light.png"}
+            alt="AirLink Logo" 
+            width={40} 
+            height={40}
+            className="object-contain"
+          />
           AirLink
         </div>
         <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>

@@ -6,8 +6,8 @@ import { Button } from "@/components/shadcn/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { useAuth } from "@/lib/auth";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/store/auth-store";
+import { useRouter, usePathname } from "next/navigation";
 
 interface ConsoleSidebarProps {
   isSidebarOpen: boolean;
@@ -16,8 +16,10 @@ interface ConsoleSidebarProps {
 
 const ConsoleSidebar: FC<ConsoleSidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const user = useAuth((state: any) => state.user);
+  const user = useAuth((state) => state.user);
+  const setUser = useAuth((state) => state.setUser);
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     try {
@@ -29,7 +31,7 @@ const ConsoleSidebar: FC<ConsoleSidebarProps> = ({ isSidebarOpen, setIsSidebarOp
       });
 
       if (res.ok) {
-        useAuth.getState().setUser(null);
+        setUser(null);
         router.push("/auth/login");
       }
     } catch (error) {
