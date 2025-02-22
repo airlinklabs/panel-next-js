@@ -8,8 +8,9 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
       attribute="class"
       defaultTheme="system"
       enableSystem
+      forcedTheme={props.forcedTheme}
       disableTransitionOnChange
-      {...props}
+      storageKey="airlink-theme"
     >
       {children}
     </NextThemesProvider>
