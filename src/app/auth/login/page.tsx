@@ -1,9 +1,8 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link"
-import { useEffect } from "react";
 import { LoaderCircle } from "lucide-react";
 import { Label } from "@/components/shadcn/label";
 import { Checkbox } from "@/components/shadcn/checkbox";
@@ -22,7 +21,7 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { theme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const setUser = useAuth((state) => state.setUser)
 
   useEffect(() => {
@@ -49,7 +48,8 @@ export default function Login() {
       const result = await signIn("credentials", {
         email,
         password,
-        redirect: false
+        redirect: false,
+        callbackUrl: "/dashboard"
       });
 
       if (result?.error) {
@@ -58,19 +58,24 @@ export default function Login() {
         return;
       }
 
-      router.refresh();
+      router.push("/dashboard");
     } catch (error) {
       setError("An error occurred. Please try again.");
       setIsLoading(false);
     }
   };
 
+  // Don't render anything until mounted
   if (!mounted) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <LoaderCircle className="animate-spin h-8 w-8" />
+      </div>
+    );
   }
 
   return (
-    <section className="flex items-center justify-center min-h-screen bg-background p-4 sm:p-8">
+    <section className="flex items-center justify-center min-h-screen bg-background p-4 sm:p-8" suppressHydrationWarning>
       <div className="w-full max-w-[1400px] mx-auto">
         <div className="relative border border-border/50 rounded-[2rem] p-4 sm:p-8 md:p-12 bg-muted/10">
           <div className="bg-card rounded-2xl overflow-hidden shadow-lg">
@@ -87,8 +92,8 @@ export default function Login() {
 
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {error && (
-                      <div className="rounded-md bg-red-50 p-4">
-                        <div className="text-sm text-red-700">{error}</div>
+                      <div className="rounded-md bg-destructive/10 p-4">
+                        <div className="text-sm text-destructive">{error}</div>
                       </div>
                     )}
                     <div className="space-y-5">
@@ -211,7 +216,7 @@ export default function Login() {
               <div className="hidden lg:block relative h-full min-h-[650px]">
                 <Image
                   src="/login-bg.jpeg"
-                  alt="placeholder"
+                  alt="Login background"
                   fill
                   className="object-cover"
                   priority
