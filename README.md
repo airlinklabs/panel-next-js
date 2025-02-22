@@ -3,6 +3,7 @@
 ## Description
 This is a **Airlink Panel** built using **Next.js**. The app is designed to efficiently manage game servers, providing an intuitive and user-friendly interface.
 
+**Please note that Airlink Panel is still under development.**
 
 ## Contributing
 We welcome contributions from the community! If you'd like to contribute, please follow the steps below:
@@ -29,4 +30,3 @@ To get started with the app, follow these steps:
 1. Build the project: `npm run build`
 2. Start the production server: `npm start`
 3. Your app will be running on `http://localhost:3000`.
-
