@@ -1,37 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Airlink Panel
 
-## Getting Started
+## Description
+This is a **Airlink Panel** built using **Next.js**. The app is designed to efficiently manage game servers, providing an intuitive and user-friendly interface.
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Contributing
+We welcome contributions from the community! If you'd like to contribute, please follow the steps below:
+1. Fork this repository.
+2. Create a new branch (`git checkout -b feature/YourFeature`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'Add new feature'`).
+5. Push to the branch (`git push origin feature/YourFeature`).
+6. Create a Pull Request.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How to Use
+To get started with the app, follow these steps:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Installation
+1. Clone the repository: `git clone https://github.com/airlinklabs/panel-next-js`
+2. Navigate to the project directory: `cd panel-next-js`
+3. Install dependencies: `npm install`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Running the App
+1. Start the development server: `npm run dev`
+2. Open your browser and navigate to `http://localhost:3000` to view the app.
 
-## Learn More
+### Building for Production
+1. Build the project: `npm run build`
+2. Start the production server: `npm start`
+3. Your app will be running on `http://localhost:3000`.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# panel-next-js
