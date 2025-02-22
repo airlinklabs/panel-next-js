@@ -4,79 +4,66 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link"
 import { useEffect } from "react";
-import { isAuthenticated } from "@/lib/utils/authenticated";
 import { LoaderCircle } from "lucide-react";
 import { Label } from "@/components/shadcn/label";
 import { Checkbox } from "@/components/shadcn/checkbox";
 import { Input } from "@/components/shadcn/input";
 import { Button } from "@/components/shadcn/button";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/store/auth-store";
 import { useTheme } from "next-themes"
 import { Logo } from "@/components/ui/logo"
+import { signIn, useSession } from "next-auth/react"
 
 export default function Login() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const { data: session } = useSession();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, submitLoginLoader] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { theme } = useTheme()
+  const setUser = useAuth((state) => state.setUser)
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    submitLoginLoader(true);
-    setTimeout(() => handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>), 500);
-  };
+  useEffect(() => {
+    if (session?.user) {
+      setUser({
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name
+      });
+      router.push("/dashboard");
+    }
+  }, [session, setUser, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!username || !password) {
-      submitLoginLoader(false);
-      alert("Missing credentials. Please try again.");
-      return;
-    }
+    setError(null);
+    setIsLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false
       });
 
-      const data = await res.json();
-
-      if (res.status === 401) {
-        submitLoginLoader(false);
-        alert("Invalid Username or Password.")
+      if (result?.error) {
+        setError("Invalid email or password");
+        setIsLoading(false);
+        return;
       }
 
-      if (res.status === 200) {
-        useAuth.getState().setUser(data.user);
-        router.push("/dashboard");
-      } else {
-        submitLoginLoader(false);
-        setError(data.error || "An error occurred");
-      }
+      router.refresh();
     } catch (error) {
-      submitLoginLoader(false);
-      console.error("Error logging in:", error);
       setError("An error occurred. Please try again.");
+      setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (isAuthenticated()) {
-      router.push("/dashboard");
-    }
-  }, []);
 
   if (!mounted) {
     return null;
@@ -99,15 +86,20 @@ export default function Login() {
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                      <div className="rounded-md bg-red-50 p-4">
+                        <div className="text-sm text-red-700">{error}</div>
+                      </div>
+                    )}
                     <div className="space-y-5">
                       <div className="space-y-2.5">
-                        <Label htmlFor="username" className="text-foreground font-medium">Email</Label>
+                        <Label htmlFor="email" className="text-foreground font-medium">Email</Label>
                         <Input
-                          type="text"
-                          id="username"
+                          type="email"
+                          id="email"
                           placeholder="example@email.com"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                           className="h-12 text-base"
                           required
                         />
@@ -130,7 +122,7 @@ export default function Login() {
                           <Label htmlFor="remember" className="text-muted-foreground text-sm font-medium">Remember me</Label>
                         </div>
                         <Link 
-                          href="#" 
+                          href="/auth/forgot-password" 
                           className="text-sm font-medium text-primary hover:text-primary/80 transition"
                         >
                           Forgot password?
@@ -141,16 +133,13 @@ export default function Login() {
                     <div className="space-y-4">
                       <Button
                         type="submit"
-                        onClick={handleClick}
                         disabled={isLoading}
-                        data-loading={isLoading}
                         className="w-full h-12 text-base font-medium"
                       >
-                        <span className="group-data-[loading=true]:text-transparent">Sign in</span>
-                        {isLoading && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <LoaderCircle className="animate-spin" size={20} strokeWidth={2} aria-hidden="true" />
-                          </div>
+                        {isLoading ? (
+                          <LoaderCircle className="animate-spin" size={20} />
+                        ) : (
+                          "Sign in"
                         )}
                       </Button>
 
@@ -163,7 +152,12 @@ export default function Login() {
                         </div>
                       </div>
 
-                      <Button variant="outline" className="w-full h-12 font-medium">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                        className="w-full h-12 font-medium"
+                      >
                         <svg
                           stroke="currentColor"
                           fill="currentColor"

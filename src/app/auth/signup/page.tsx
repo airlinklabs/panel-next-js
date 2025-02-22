@@ -3,30 +3,30 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { isAuthenticated } from "@/lib/utils/authenticated";
 import { LoaderCircle } from "lucide-react";
 import { Label } from "@/components/shadcn/label";
 import { Input } from "@/components/shadcn/input";
 import { Button } from "@/components/shadcn/button";
-import { useAuth } from "@/lib/auth";
-import { useTheme } from "next-themes"
-import { Logo } from "@/components/ui/logo"
+import { useTheme } from "next-themes";
+import { Logo } from "@/components/ui/logo";
+import { signIn } from "next-auth/react";
 
 export default function Signup() {
   const router = useRouter();
   const { theme } = useTheme();
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
-    username: "",
     password: "",
   });
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [passwordCriteria, setPasswordCriteria] = useState({
     length: false,
     letter: false,
-    number: false
+    number: false,
+    uppercase: false
   });
 
   useEffect(() => {
@@ -36,8 +36,9 @@ export default function Signup() {
   const validatePassword = (password: string) => {
     setPasswordCriteria({
       length: password.length >= 8,
-      letter: /[A-Za-z]/.test(password),
-      number: /\d/.test(password)
+      letter: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      uppercase: /[A-Z]/.test(password)
     });
   };
 
@@ -47,17 +48,18 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
     setIsLoading(true);
 
-    const { length, letter, number } = passwordCriteria;
-    if (!length || !letter || !number) {
+    const { length, letter, number, uppercase } = passwordCriteria;
+    if (!length || !letter || !number || !uppercase) {
       setError("Password does not meet security requirements");
       setIsLoading(false);
       return;
     }
 
     try {
-      const res = await fetch("/api/auth/signup", {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,30 +67,25 @@ export default function Signup() {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        useAuth.getState().setUser(data.user);
-        router.push("/dashboard");
-      } else {
-        setError(data.error || "An error occurred");
-        setIsLoading(false);
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to create account");
       }
+
+      // Redirect to login page on successful registration
+      router.push("/auth/login");
     } catch (error) {
-      setError("An error occurred during registration");
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An error occurred during registration");
+      }
+    } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated()) {
-      router.push("/dashboard");
-    }
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
     <section className="flex items-center justify-center min-h-screen bg-background p-4 sm:p-8">
@@ -107,15 +104,21 @@ export default function Signup() {
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                      <div className="rounded-md bg-red-50 p-4">
+                        <div className="text-sm text-red-700">{error}</div>
+                      </div>
+                    )}
                     <div className="space-y-5">
                       <div className="space-y-2.5">
-                        <Label htmlFor="username" className="text-foreground font-medium">Username</Label>
+                        <Label htmlFor="name" className="text-foreground font-medium">Username</Label>
                         <Input
                           type="text"
-                          id="username"
-                          placeholder="johndoe"
-                          value={formData.username}
-                          onChange={(e) => setFormData({...formData, username: e.target.value})}
+                          id="name"
+                          name="name"
+                          placeholder="example"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           className="h-12 text-base"
                           required
                         />
@@ -126,9 +129,10 @@ export default function Signup() {
                         <Input
                           type="email"
                           id="email"
+                          name="email"
                           placeholder="example@email.com"
                           value={formData.email}
-                          onChange={(e) => setFormData({...formData, email: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           className="h-12 text-base"
                           required
                         />
@@ -139,9 +143,10 @@ export default function Signup() {
                         <Input
                           type="password"
                           id="password"
+                          name="password"
                           placeholder="••••••••"
                           value={formData.password}
-                          onChange={(e) => setFormData({...formData, password: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                           className="h-12 text-base"
                           required
                         />
@@ -151,7 +156,10 @@ export default function Signup() {
                               {passwordCriteria.length ? "✓" : "✗"} At least 8 characters
                             </li>
                             <li className={`flex items-center gap-2 ${passwordCriteria.letter ? "text-green-500" : "text-destructive"} text-sm`}>
-                              {passwordCriteria.letter ? "✓" : "✗"} At least one letter
+                              {passwordCriteria.letter ? "✓" : "✗"} At least one lowercase letter
+                            </li>
+                            <li className={`flex items-center gap-2 ${passwordCriteria.uppercase ? "text-green-500" : "text-destructive"} text-sm`}>
+                              {passwordCriteria.uppercase ? "✓" : "✗"} At least one uppercase letter
                             </li>
                             <li className={`flex items-center gap-2 ${passwordCriteria.number ? "text-green-500" : "text-destructive"} text-sm`}>
                               {passwordCriteria.number ? "✓" : "✗"} At least one number
@@ -159,8 +167,6 @@ export default function Signup() {
                           </ul>
                         </div>
                       </div>
-
-                      {error && <p className="text-destructive text-sm font-medium">{error}</p>}
                     </div>
 
                     <div className="space-y-4">
@@ -187,7 +193,12 @@ export default function Signup() {
                         </div>
                       </div>
 
-                      <Button variant="outline" className="w-full h-12 font-medium">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                        className="w-full h-12 font-medium"
+                      >
                         <svg
                           stroke="currentColor"
                           fill="currentColor"
