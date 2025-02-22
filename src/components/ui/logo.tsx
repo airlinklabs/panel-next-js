@@ -11,8 +11,8 @@ interface LogoProps {
 }
 
 export function Logo({ size = "default", className }: LogoProps) {
-  const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const { resolvedTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
@@ -24,15 +24,25 @@ export function Logo({ size = "default", className }: LogoProps) {
     lg: "w-64 h-20"
   }
 
-  // Prevent hydration mismatch by rendering a simple div until mounted
+  // Always render a consistent initial state
   if (!mounted) {
-    return <div className={cn("relative mb-2", sizeClasses[size], className)} />
+    return (
+      <div className={cn("relative mb-2", sizeClasses[size], className)}>
+        <Image 
+          src="/logo-light.png"
+          alt="AirLink Logo"
+          fill
+          className="object-contain"
+          priority
+        />
+      </div>
+    )
   }
 
   return (
     <div className={cn("relative mb-2", sizeClasses[size], className)}>
       <Image 
-        src={theme === 'dark' ? "/logo-dark.png" : "/logo-light.png"}
+        src={resolvedTheme === 'dark' ? "/logo-dark.png" : "/logo-light.png"}
         alt="AirLink Logo"
         fill
         className="object-contain dark:invert"
