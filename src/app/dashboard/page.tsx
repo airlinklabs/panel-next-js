@@ -9,7 +9,7 @@ import Sidebar from "@/components/airlink/Sidebar";
 import LoadingScreen from "@/components/airlink/LoadingScreen";
 import ServerCard from "@/components/airlink/dashboard/ServerCard";
 import { useRouter } from "next/navigation";
-import { isAuthenticated } from "@/lib/utils/authenticated";
+import { Server as ServerIcon } from "lucide-react";
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -22,12 +22,22 @@ const Dashboard: React.FC = () => {
   ]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+    // Check authentication status
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/check');
+        if (!response.ok) {
+          router.push("/auth/login");
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        router.push("/auth/login");
+      }
+    };
+    
+    checkAuth();
+  }, [router]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -40,68 +50,73 @@ const Dashboard: React.FC = () => {
             diskUsage: `${Math.floor(Math.random() * parseInt(server.disk))}/${server.disk}`
           };
         }
-        return {
-          ...server,
-          memoryUsage: `0/${server.ram}`,
-          cpuUsage: `0%`,
-          diskUsage: `0/${server.disk}`
-        };
+        return server;
       }));
     }, 3000);
 
     return () => clearInterval(interval);
   }, []);
 
-    useEffect(() => {
-      if (!isAuthenticated()) {
-        router.push("/auth/login");
-      }
-    }, []);
-
   return (
-    <div className="min-h-screen dark bg-background text-foreground">
+    <div className="min-h-screen bg-background">
       <LoadingScreen loading={loading} />
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {!loading && (
           <motion.div
-            initial={{ opacity: 0, filter: "blur(5px)" }}
-            animate={{ opacity: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, filter: "blur(5px)" }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="h-full"
           >
             <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
             <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-            <main className={cn("pt-14 transition-all duration-300 ease-in-out", isSidebarOpen ? "pl-60" : "pl-0")}>
-              <div className="p-6 sm:p-4 md:p-6">
+            <main 
+              className={cn(
+                "pt-16 min-h-screen transition-all duration-300 ease-in-out",
+                isSidebarOpen ? "pl-64" : "pl-0"
+              )}
+            >
+              <div className="p-6 max-w-7xl mx-auto">
                 <div className="mb-8">
-                  <h1 className="text-2xl font-semibold">Dashboard</h1>
-                  <p className="text-muted-foreground">View and manage your servers.</p>
+                  <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+                  <p className="text-muted-foreground mt-1">Manage your server infrastructure</p>
                 </div>
-                {servers.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center min-h-96 text-center">
-                    <div className="mb-4">
-                      <div className="spinner">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                        <div></div>
+                
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="w-full"
+                >
+                  {servers.length === 0 ? (
+                    <div className="rounded-lg border bg-card p-8 text-center">
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                        <ServerIcon className="h-6 w-6 text-primary" />
                       </div>
+                      <h2 className="mt-4 text-lg font-semibold">No servers found</h2>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Get started by creating your first server
+                      </p>
+                      <Button className="mt-6" size="sm">
+                        Create Server
+                      </Button>
                     </div>
-                    <h2 className="text-xl font-semibold mb-2">
-                      Oops! We couldn&apos;t find any servers associated with your account.
-                    </h2>
-                    <p className="text-muted-foreground mb-4">You don&apos;t have any servers yet. Why not create one now?</p>
-                    <Button>Create a server</Button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {servers.map(server => (
-                      <ServerCard key={server.uuid} server={server} />
-                    ))}
-                  </div>
-                )}
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {servers.map(server => (
+                        <motion.div
+                          key={server.uuid}
+                          initial={{ scale: 0.95, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ServerCard server={server} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
               </div>
             </main>
           </motion.div>

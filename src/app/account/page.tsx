@@ -3,23 +3,30 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { useAuth } from "@/lib/store/auth-store";
 import LoadingScreen from "@/components/airlink/LoadingScreen";
 import { LoaderCircle } from "lucide-react";
 import { Label } from "@/components/shadcn/label";
 import { Input } from "@/components/shadcn/input";
 import { Button } from "@/components/shadcn/button";
 import { Textarea } from "@/components/shadcn/textarea";
-import { useAuth } from "@/lib/store/auth-store";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import Header from "@/components/airlink/Header";
 import Sidebar from "@/components/airlink/Sidebar";
-import { isAuthenticated } from "@/lib/utils/authenticated";
+import { getSession } from "next-auth/react";
+
+interface UserData {
+  id: string;
+  username: string | null;
+  email: string | null;
+  description: string | null;
+}
 
 export default function Account() {
   const router = useRouter();
   const { toast } = useToast();
-  const user = useAuth((state: any) => state.user);
+  const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -36,35 +43,48 @@ export default function Account() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        ...formData,
-        username: user.username || "",
-        email: user.email || "",
-        description: user.description || "",
-      });
-    }
-  }, [user]);
+    async function checkAuthentication() {
+      try {
+        const session = await getSession();
+        if (!session) {
+          router.push("/auth/login");
+          return;
+        }
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push("/auth/login");
+        // Fetch user details if session exists
+        const response = await fetch("/api/auth/session");
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+          setFormData({
+            username: userData.username || "",
+            email: userData.email || "",
+            description: userData.description || "",
+            currentPassword: "",
+            newPassword: "",
+          });
+        } else {
+          throw new Error("Failed to fetch user data");
+        }
+      } catch (error) {
+        console.error("Error during authentication check", error);
+        router.push("/auth/login");
+      } finally {
+        setLoading(false);
+      }
     }
-  }, []);
+
+    checkAuthentication();
+  }, [router]);
 
   const validateCurrentPassword = async (password: string) => {
+    if (!user) return false;
+
     try {
       const res = await fetch("/api/auth/validate-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: user?.id, password }),
+        body: JSON.stringify({ id: user.id, password }),
       });
       const data = await res.json();
       setPasswordValidation({
@@ -82,10 +102,12 @@ export default function Account() {
   };
 
   const handleSubmit = async (type: string) => {
+    if (!user) return;
+
     setIsLoading(true);
     try {
-      let endpoint = `/api/auth/update-${type}`;
-      let payload = {};
+      const endpoint = `/api/auth/update-${type}`;
+      let payload: Record<string, string> = {};
 
       switch (type) {
         case "profile":
@@ -105,7 +127,7 @@ export default function Account() {
             return;
           }
           payload = {
-            email: user.email,
+            email: user.email || "",
             currentPassword: formData.currentPassword,
             newPassword: formData.newPassword,
           };
@@ -128,21 +150,26 @@ export default function Account() {
         if (type === "password") {
           router.push("/auth/login");
         } else {
-          useAuth.getState().setUser(data.user);
+          setUser(data.user);
         }
       } else {
         throw new Error(data.error);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "An error occurred";
       toast({
         title: "Error",
-        description: error.message || "An error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen dark bg-background text-foreground">
