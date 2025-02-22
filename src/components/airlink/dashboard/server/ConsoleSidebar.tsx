@@ -1,28 +1,23 @@
 "use client";
 
 import { useEffect, FC } from "react";
-import { Box, User2, LogOutIcon, Users, Database, ImageIcon, Sliders, Server } from "lucide-react";
+import { Home, Settings, LogOut, Activity, ScrollText, Folder, Database, Network, Shield } from "lucide-react";
 import { Button } from "@/components/shadcn/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useAuth } from "@/lib/auth";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-interface SidebarProps {
+interface ConsoleSidebarProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (isOpen: boolean) => void;
 }
 
-const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
+const ConsoleSidebar: FC<ConsoleSidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const user = useAuth((state: any) => state.user);
   const router = useRouter();
-  const pathname = usePathname();
-
-  const isActive = (path: string) => {
-    return pathname.startsWith(path);
-  };
 
   const handleLogout = async () => {
     try {
@@ -71,56 +66,54 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
         {/* Main Navigation */}
         <nav className="p-2 space-y-1">
           <Button variant="secondary" className="w-full justify-start">
-            <Box className="mr-2 h-4 w-4" />
-            Servers
+            <Home className="mr-2 h-4 w-4" />
+            Dashboard
           </Button>
-          <Button 
-            variant={isActive('/account') ? "secondary" : "ghost"} 
-            className="w-full justify-start"
-            onClick={() => router.push('/account')}
-          >
-            <User2 className="mr-2 h-4 w-4" />
-            Account
+          <Button variant="ghost" className="w-full justify-start">
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
           </Button>
         </nav>
 
-        {/* Admin Panel */}
+        {/* Server Management */}
         <div className="p-2 border-t mt-4">
-          <div className="text-sm font-medium text-muted-foreground px-2 py-1.5">Admin Panel</div>
+          <div className="text-sm font-medium text-muted-foreground px-2 py-1.5">Management</div>
           <nav className="space-y-1">
             <Button variant="ghost" className="w-full justify-start text-foreground">
-              <Box className="mr-2 h-4 w-4" />
-              Overview
+              <Activity className="mr-2 h-4 w-4" />
+              Analytics
             </Button>
             <Button variant="ghost" className="w-full justify-start text-foreground">
-              <Sliders className="mr-2 h-4 w-4" />
-              Settings
+              <ScrollText className="mr-2 h-4 w-4" />
+              Logs
             </Button>
             <Button variant="ghost" className="w-full justify-start text-foreground">
-              <Server className="mr-2 h-4 w-4" />
-              Servers
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-foreground">
-              <Users className="mr-2 h-4 w-4" />
-              Users
+              <Folder className="mr-2 h-4 w-4" />
+              File Manager
             </Button>
             <Button variant="ghost" className="w-full justify-start text-foreground">
               <Database className="mr-2 h-4 w-4" />
-              Nodes
+              Databases
             </Button>
             <Button variant="ghost" className="w-full justify-start text-foreground">
-              <ImageIcon className="mr-2 h-4 w-4" />
-              Images
+              <Network className="mr-2 h-4 w-4" />
+              Networking
+            </Button>
+            <Button variant="ghost" className="w-full justify-start text-foreground">
+              <Shield className="mr-2 h-4 w-4" />
+              Security
             </Button>
           </nav>
         </div>
+
+        {/* Logout */}
         <div className="mt-auto p-2 border-t">
           <Button 
             variant="destructiveSecondary" 
             className="w-full justify-start text-foreground"
             onClick={handleLogout}
           >
-            <LogOutIcon className="mr-2 h-4 w-4" />
+            <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
         </div>
@@ -129,4 +122,4 @@ const Sidebar: FC<SidebarProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   );
 };
 
-export default Sidebar;
+export default ConsoleSidebar;
