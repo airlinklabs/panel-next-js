@@ -10,14 +10,23 @@ import { Button } from "@/components/shadcn/button";
 import { useAuth } from "@/lib/store/auth-store";
 import { Logo } from "@/components/ui/logo"
 import { signIn, useSession } from "next-auth/react"
+import { useRouter } from 'next/navigation'
 
 export default function Login() {
+  const router = useRouter()
   const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const setUser = useAuth((state) => state.setUser)
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace('/dashboard')
+    }
+  }, [status, router]);
 
   // Handle authenticated session
   useEffect(() => {
@@ -28,7 +37,6 @@ export default function Login() {
           email: session.user.email,
           name: session.user.name
         });
-        window.location.href = "/dashboard";
       } catch (err) {
         console.error("Session handling error:", err);
         setError("Failed to process session. Please try again.");
@@ -41,34 +49,19 @@ export default function Login() {
     setError(null);
     setIsLoading(true);
 
-    try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
 
-      console.log("Sign in result:", result);
-
-      if (result?.error) {
-        setError("Invalid email or password");
-        setIsLoading(false);
-        return;
-      }
-
-      if (!result?.ok) {
-        setError("Something went wrong. Please try again.");
-        setIsLoading(false);
-        return;
-      }
-
-      // Successful login will trigger the session change
-      window.location.href = "/dashboard";
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("An error occurred. Please try again.");
+    if (result?.error) {
+      setError("Invalid email or password");
       setIsLoading(false);
+      return;
     }
+
+    // Let the session change trigger the redirect
   };
 
   const handleGoogleSignIn = async () => {
@@ -89,12 +82,6 @@ export default function Login() {
         <LoaderCircle className="animate-spin h-8 w-8" />
       </div>
     );
-  }
-
-  // If already authenticated, redirect immediately
-  if (status === "authenticated") {
-    window.location.href = "/dashboard";
-    return null;
   }
 
   return (
