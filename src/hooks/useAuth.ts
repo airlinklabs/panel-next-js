@@ -17,12 +17,15 @@ export function useAuth(options?: { require?: boolean; adminOnly?: boolean }) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
+  const require = options?.require
+  const adminOnly = options?.adminOnly
+
   useEffect(() => {
     fetch('/api/auth/me')
       .then(r => r.json())
       .then(data => {
         setUser(data.user ?? null)
-        if (options?.require && !data.user) {
+        if (require && !data.user) {
           if (data.userCount === 0) {
             router.replace('/register')
           } else {
@@ -31,7 +34,7 @@ export function useAuth(options?: { require?: boolean; adminOnly?: boolean }) {
           setLoading(false)
           return
         }
-        if (options?.adminOnly && data.user && !data.user.isAdmin) {
+        if (adminOnly && data.user && !data.user.isAdmin) {
           router.replace('/dashboard')
           setLoading(false)
           return
@@ -41,9 +44,9 @@ export function useAuth(options?: { require?: boolean; adminOnly?: boolean }) {
       .catch(() => {
         setUser(null)
         setLoading(false)
-        if (options?.require) router.replace('/login')
+        if (require) router.replace('/login')
       })
-  }, [])
+  }, [require, adminOnly, router])
 
   async function logout() {
     await fetch('/api/auth/logout', { method: 'POST' })
