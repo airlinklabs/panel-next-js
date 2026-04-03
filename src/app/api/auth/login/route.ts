@@ -2,19 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/session';
+import { RateLimiter } from '@/lib/rateLimit';
 
-const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+const loginLimiter = new RateLimiter(20, 60_000);
 
 function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = loginAttempts.get(ip);
-  if (!entry || entry.resetAt < now) {
-    loginAttempts.set(ip, { count: 1, resetAt: now + 60_000 });
-    return true;
-  }
-  if (entry.count >= 20) return false;
-  entry.count++;
-  return true;
+  return loginLimiter.check(ip);
 }
 
 async function getSecuritySettings() {

@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
+import { RateLimiter } from '@/lib/rateLimit';
 
-const registerAttempts = new Map<string, { count: number; resetAt: number }>();
+const registerLimiter = new RateLimiter(20, 60_000);
 
 function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = registerAttempts.get(ip);
-  if (!entry || entry.resetAt < now) {
-    registerAttempts.set(ip, { count: 1, resetAt: now + 60_000 });
-    return true;
-  }
-  if (entry.count >= 20) return false;
-  entry.count++;
-  return true;
+  return registerLimiter.check(ip);
 }
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
