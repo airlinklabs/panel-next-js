@@ -21,12 +21,36 @@ async function getServerAndUser(req: NextRequest, uuid: string) {
 
 const auth = (key: string) => ({ username: 'Airlink', password: key });
 
+import path from 'path';
+
 function safePath(p: string): string {
-  const normalized = p.replace(/\0/g, '').replace(/\\/g, '/');
-  if (normalized.includes('../')) {
+  // Decode percent-encoded characters before validation
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(p);
+  } catch {
+    decoded = p;
+  }
+
+  const normalized = decoded.replace(/\0/g, '').replace(/\\/g, '/');
+
+  // Block null bytes, traversal sequences, and absolute paths to sensitive dirs
+  if (
+    normalized.includes('../') ||
+    normalized.includes('..\\') ||
+    normalized === '..' ||
+    /\.\.[/\\]/.test(normalized)
+  ) {
     throw new Error('Invalid path');
   }
-  return normalized;
+
+  // Resolve and ensure it stays within a virtual root to catch edge cases
+  const resolved = path.posix.normalize('/' + normalized);
+  if (!resolved.startsWith('/')) {
+    throw new Error('Invalid path');
+  }
+
+  return resolved;
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ uuid: string }> }) {
