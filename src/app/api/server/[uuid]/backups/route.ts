@@ -97,7 +97,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ uui
         auth,
         timeout: 10000,
       });
-    } catch {}
+    } catch (err) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error || err.message : 'Failed to delete backup file from node';
+      return NextResponse.json({ error: msg }, { status: 502 });
+    }
 
     await prisma.backup.delete({ where: { UUID: backupId } });
     return NextResponse.json({ success: true });
