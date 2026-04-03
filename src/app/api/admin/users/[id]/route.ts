@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/session';
+import { toInt } from '@/lib/rateLimit';
 
 async function requireAdmin(req: NextRequest) {
   const res = NextResponse.next();
@@ -15,8 +16,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
+  const userId = toInt(id);
+  if (isNaN(userId)) return NextResponse.json({ error: 'Invalid id.' }, { status: 400 });
+
   const target = await prisma.users.findUnique({
-    where: { id: parseInt(id) },
+    where: { id: userId },
     include: { servers: { include: { node: true } }, loginHistory: { orderBy: { timestamp: 'desc' }, take: 10 } },
   });
 
@@ -31,7 +35,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  const targetId = parseInt(id);
+  const targetId = toInt(id);
+  if (isNaN(targetId)) return NextResponse.json({ error: 'Invalid id.' }, { status: 400 });
 
   const target = await prisma.users.findUnique({ where: { id: targetId } });
   if (!target) return NextResponse.json({ error: 'User not found.' }, { status: 404 });
@@ -54,10 +59,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (username) data.username = username;
   if (description !== undefined) data.description = description;
   if (isAdmin !== undefined) data.isAdmin = isAdmin === true || isAdmin === 'true';
-  if (serverLimit !== undefined) data.serverLimit = serverLimit === '' || serverLimit === null ? null : parseInt(serverLimit);
-  if (maxMemory !== undefined) data.maxMemory = maxMemory === '' || maxMemory === null ? null : parseInt(maxMemory);
-  if (maxCpu !== undefined) data.maxCpu = maxCpu === '' || maxCpu === null ? null : parseInt(maxCpu);
-  if (maxStorage !== undefined) data.maxStorage = maxStorage === '' || maxStorage === null ? null : parseInt(maxStorage);
+  if (serverLimit !== undefined) data.serverLimit = serverLimit === '' || serverLimit === null ? null : toInt(serverLimit);
+  if (maxMemory !== undefined) data.maxMemory = maxMemory === '' || maxMemory === null ? null : toInt(maxMemory);
+  if (maxCpu !== undefined) data.maxCpu = maxCpu === '' || maxCpu === null ? null : toInt(maxCpu);
+  if (maxStorage !== undefined) data.maxStorage = maxStorage === '' || maxStorage === null ? null : toInt(maxStorage);
   if (password && password.trim()) data.password = await bcrypt.hash(password, 10);
 
   await prisma.users.update({ where: { id: targetId }, data });
@@ -69,6 +74,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  await prisma.users.delete({ where: { id: parseInt(id) } });
+  const userId = toInt(id);
+  if (isNaN(userId)) return NextResponse.json({ error: 'Invalid id.' }, { status: 400 });
+
+  await prisma.users.delete({ where: { id: userId } });
   return NextResponse.json({ success: true });
 }

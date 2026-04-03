@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/session';
 import axios from 'axios';
 import { daemonUrl } from '@/lib/daemon';
+import { toInt, badInt } from '@/lib/rateLimit';
 
 async function requireAdmin(req: NextRequest) {
   const res = NextResponse.next();
@@ -16,8 +17,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
+  const serverId = toInt(id);
+  if (isNaN(serverId)) return NextResponse.json({ error: 'Invalid id.' }, { status: 400 });
+
   const server = await prisma.server.findUnique({
-    where: { id: parseInt(id) },
+    where: { id: serverId },
     include: { node: true, image: true, owner: true },
   });
   if (!server) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
@@ -37,23 +41,35 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
   }
 
-  const server = await prisma.server.findUnique({ where: { id: parseInt(id) }, include: { node: true, image: true } });
+  const serverId = toInt(id);
+  const nNodeId = toInt(nodeId);
+  const nImageId = toInt(imageId);
+  const nOwnerId = toInt(ownerId);
+  const nMemory = toInt(Memory);
+  const nCpu = toInt(Cpu);
+  const nStorage = toInt(Storage);
+
+  if (badInt(serverId, nNodeId, nImageId, nOwnerId, nMemory, nCpu, nStorage)) {
+    return NextResponse.json({ error: 'Invalid numeric fields.' }, { status: 400 });
+  }
+
+  const server = await prisma.server.findUnique({ where: { id: serverId }, include: { node: true, image: true } });
   if (!server) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
 
   const newSuspended = Suspended === true || Suspended === 'true';
   const suspensionChanged = server.Suspended !== newSuspended;
 
   await prisma.server.update({
-    where: { id: parseInt(id) },
+    where: { id: serverId },
     data: {
       name,
       description: description || '',
-      nodeId: parseInt(nodeId),
-      imageId: parseInt(imageId),
-      ownerId: parseInt(ownerId),
-      Memory: parseInt(Memory),
-      Cpu: parseInt(Cpu),
-      Storage: parseInt(Storage),
+      nodeId: nNodeId,
+      imageId: nImageId,
+      ownerId: nOwnerId,
+      Memory: nMemory,
+      Cpu: nCpu,
+      Storage: nStorage,
       StartCommand: StartCommand || '',
       Suspended: newSuspended,
       allowStartupEdit: allowStartupEdit === true || allowStartupEdit === 'true',
@@ -78,7 +94,10 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  const server = await prisma.server.findUnique({ where: { id: parseInt(id) }, include: { node: true, image: true } });
+  const serverId = toInt(id);
+  if (isNaN(serverId)) return NextResponse.json({ error: 'Invalid id.' }, { status: 400 });
+
+  const server = await prisma.server.findUnique({ where: { id: serverId }, include: { node: true, image: true } });
   if (!server) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
 
   try {
@@ -88,6 +107,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     );
   } catch {}
 
-  await prisma.server.delete({ where: { id: parseInt(id) } });
+  await prisma.server.delete({ where: { id: serverId } });
   return NextResponse.json({ success: true });
 }

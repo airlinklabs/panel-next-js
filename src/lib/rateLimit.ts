@@ -43,3 +43,20 @@ export class RateLimiter {
     }
   }
 }
+
+/**
+ * Parse a value as a base-10 integer.
+ * Returns NaN if the value is not a valid integer string.
+ */
+export function toInt(value: unknown): number {
+  if (typeof value === 'number') return Number.isInteger(value) ? value : NaN;
+  if (typeof value === 'string' && value.trim() !== '') return parseInt(value, 10);
+  return NaN;
+}
+
+/**
+ * Returns a 400 NextResponse if any of the parsed integers are NaN.
+ */
+export function badInt(...values: number[]): boolean {
+  return values.some(v => isNaN(v));
+}

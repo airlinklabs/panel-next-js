@@ -4,6 +4,7 @@ import { getSessionFromRequest } from '@/lib/session'
 import { daemonUrl, daemonScheme } from '@/lib/daemon'
 import axios from 'axios'
 import { Buffer } from 'buffer'
+import { toInt, badInt } from '@/lib/rateLimit'
 
 async function requireAdmin(req: NextRequest) {
   const res = NextResponse.next()
@@ -33,10 +34,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 })
   }
 
-  const node = await prisma.node.findUnique({ where: { id: parseInt(nodeId) } })
+  const node = await prisma.node.findUnique({ where: { id: toInt(nodeId) } })
   if (!node) return NextResponse.json({ error: 'Node not found.' }, { status: 404 })
 
-  const image = await prisma.images.findUnique({ where: { id: parseInt(imageId) } })
+  const image = await prisma.images.findUnique({ where: { id: toInt(imageId) } })
   if (!image) return NextResponse.json({ error: 'Image not found.' }, { status: 404 })
 
   // Ports comes in as a plain port number string like "25565"
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Check the port is not already taken by another server on this node
-  const nodeServers = await prisma.server.findMany({ where: { nodeId: parseInt(nodeId) } })
+  const nodeServers = await prisma.server.findMany({ where: { nodeId: toInt(nodeId) } })
   for (const srv of nodeServers) {
     try {
       const srvPorts = JSON.parse(srv.Ports || '[]')
@@ -99,17 +100,28 @@ export async function POST(req: NextRequest) {
 
   const portsJson = JSON.stringify([{ Port: `${portNumber}:${portNumber}`, primary: true }])
 
+  const nOwnerId = toInt(ownerId);
+  const nNodeId = toInt(nodeId);
+  const nImageId = toInt(imageId);
+  const nMemory = toInt(Memory);
+  const nCpu = toInt(Cpu);
+  const nStorage = toInt(Storage);
+
+  if (badInt(nOwnerId, nNodeId, nImageId, nMemory, nCpu, nStorage)) {
+    return NextResponse.json({ error: 'Invalid numeric fields.' }, { status: 400 });
+  }
+
   const server = await prisma.server.create({
     data: {
       name,
       description: description || '',
-      ownerId: parseInt(ownerId),
-      nodeId: parseInt(nodeId),
-      imageId: parseInt(imageId),
+      ownerId: nOwnerId,
+      nodeId: nNodeId,
+      imageId: nImageId,
       Ports: portsJson,
-      Memory: parseInt(Memory),
-      Cpu: parseInt(Cpu),
-      Storage: parseInt(Storage),
+      Memory: nMemory,
+      Cpu: nCpu,
+      Storage: nStorage,
       dockerImage: JSON.stringify(matchedDockerEntry),
       Variables: JSON.stringify(mergedVariables),
       StartCommand: image.startup,
