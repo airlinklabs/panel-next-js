@@ -4,9 +4,12 @@ import next from 'next';
 import { WebSocketServer, WebSocket } from 'ws';
 import { getIronSession } from 'iron-session';
 import { IncomingMessage, ServerResponse } from 'http';
-import { installDaemonRequestInterceptor, daemonSchemeSync } from './src/lib/daemon';
+import { installDaemonRequestInterceptor, daemonSchemeSync, daemonScheme } from './src/lib/daemon';
 
 installDaemonRequestInterceptor();
+
+// Prime the scheme cache at startup so daemonSchemeSync() is never stale on first use
+import('./src/lib/daemon').then(m => m.daemonScheme()).catch(() => {});
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOST || '0.0.0.0';
@@ -155,7 +158,7 @@ async function startServer() {
           return;
         }
 
-        const httpScheme = daemonSchemeSync();
+        const httpScheme = await daemonScheme();
         const wsScheme = httpScheme === 'https' ? 'wss' : 'ws';
 
         if (consoleMatch) {

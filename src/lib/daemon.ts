@@ -29,6 +29,10 @@ export async function daemonScheme(): Promise<'http' | 'https'> {
 
 export function daemonSchemeSync(): 'http' | 'https' {
   if (Date.now() - schemeCachedAt > SCHEME_CACHE_TTL_MS) {
+    // Fire-and-forget refresh — callers that need the accurate value should use daemonScheme()
+    // We still return the last known value synchronously; the next call after refresh completes
+    // will get the updated scheme. This avoids returning stale 'http' on first boot by
+    // eagerly refreshing and updating cachedScheme before the TTL expires.
     refreshSchemeCache();
   }
   return cachedScheme;
